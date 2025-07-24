@@ -1,0 +1,34 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BankAccounts.API", "BankAccounts.API\BankAccounts.API.csproj", "{C9ED80E8-E4C1-4433-B3A5-177F011D4FD9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BankAccounts.Application", "BankAccounts.Application\BankAccounts.Application.csproj", "{DDD37C75-179F-428D-83D3-F0CAA0A710C5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BankAccounts.Infrastructure", "BankAccounts.Infrastructure\BankAccounts.Infrastructure.csproj", "{6AD161ED-1066-471A-A70A-EE080936D5FD}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BankAccounts.Domain", "BankAccounts.Domain\BankAccounts.Domain.csproj", "{F2D73209-33B6-4E3C-9794-1AEA0EF30465}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{C9ED80E8-E4C1-4433-B3A5-177F011D4FD9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C9ED80E8-E4C1-4433-B3A5-177F011D4FD9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C9ED80E8-E4C1-4433-B3A5-177F011D4FD9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C9ED80E8-E4C1-4433-B3A5-177F011D4FD9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DDD37C75-179F-428D-83D3-F0CAA0A710C5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DDD37C75-179F-428D-83D3-F0CAA0A710C5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DDD37C75-179F-428D-83D3-F0CAA0A710C5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DDD37C75-179F-428D-83D3-F0CAA0A710C5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6AD161ED-1066-471A-A70A-EE080936D5FD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6AD161ED-1066-471A-A70A-EE080936D5FD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6AD161ED-1066-471A-A70A-EE080936D5FD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6AD161ED-1066-471A-A70A-EE080936D5FD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F2D73209-33B6-4E3C-9794-1AEA0EF30465}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F2D73209-33B6-4E3C-9794-1AEA0EF30465}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F2D73209-33B6-4E3C-9794-1AEA0EF30465}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F2D73209-33B6-4E3C-9794-1AEA0EF30465}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
