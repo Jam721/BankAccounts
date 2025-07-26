@@ -1,7 +1,9 @@
-﻿using BankAccounts.Domain.Enums;
+﻿using System.Diagnostics.CodeAnalysis;
+using BankAccounts.Domain.Enums;
 
 namespace BankAccounts.Domain.Models;
 
+[SuppressMessage("ReSharper", "UnusedMember.Global")]
 public class Transaction
 {
     public Guid Id { get; set; }

@@ -6,49 +6,32 @@ using Microsoft.EntityFrameworkCore;
 
 namespace BankAccounts.Infrastructure.Repositories;
 
-public class TransactionRepository : ITransactionRepository
+public class TransactionRepository(AppDbContext context, IMapper mapper) : ITransactionRepository
 {
-    private readonly AppDbContext _context;
-    private readonly IMapper _mapper;
-
-    public TransactionRepository(AppDbContext context, IMapper mapper)
-    {
-        _context = context;
-        _mapper = mapper;
-    }
-    
     public async Task AddAsync(Transaction transaction, CancellationToken cancellationToken)
     {
-        var entity = _mapper.Map<TransactionEntity>(transaction);
-        await _context.Transactions.AddAsync(entity, cancellationToken);
-        await _context.SaveChangesAsync(cancellationToken);
-    }
-
-    public async Task<IEnumerable<Transaction>> GetByAccountIdAsync(Guid accountId, CancellationToken cancellationToken)
-    {
-        var entities = await _context.Transactions
-            .Where(t => t.AccountId == accountId)
-            .ToListAsync(cancellationToken);
-        return _mapper.Map<IEnumerable<Transaction>>(entities);
+        var entity = mapper.Map<TransactionEntity>(transaction);
+        await context.Transactions.AddAsync(entity, cancellationToken);
+        await context.SaveChangesAsync(cancellationToken);
     }
     
     public async Task<IEnumerable<Transaction>> GetByAccountIdAndPeriodAsync(
-        Guid accountId, DateTime? from, DateTime? to, CancellationToken cancellationToken)
+        Guid accountId, DateTime? fromDate, DateTime? toDate, CancellationToken cancellationToken)
     {
-        var entities = _context.Transactions;
-        if (from.HasValue && to.HasValue)
+        var entities = context.Transactions;
+        if (fromDate.HasValue && toDate.HasValue)
         {
             var res = await entities
-                .Where(t => t.AccountId == accountId && t.DateTime >= from && t.DateTime <= to)
+                .Where(t => t.AccountId == accountId && t.DateTime >= fromDate && t.DateTime <= toDate)
                 .ToListAsync(cancellationToken);
             
-            return _mapper.Map<IEnumerable<Transaction>>(res);
+            return mapper.Map<IEnumerable<Transaction>>(res);
         }
         else
         {
             var res = await entities.ToListAsync(cancellationToken);
             
-            return _mapper.Map<IEnumerable<Transaction>>(res);
+            return mapper.Map<IEnumerable<Transaction>>(res);
         }
     }
 }

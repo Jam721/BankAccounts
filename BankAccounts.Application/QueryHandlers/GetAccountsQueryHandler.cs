@@ -7,24 +7,15 @@ using MediatR;
 
 namespace BankAccounts.Application.QueryHandlers;
 
-public class GetAccountsQueryHandler : IRequestHandler<GetAccountsQuery, PaginatedResult<AccountDto>>
+public class GetAccountsQueryHandler(
+    IAccountRepository repository,
+    IMapper mapper) : IRequestHandler<GetAccountsQuery, PaginatedResult<AccountDto>>
 {
-    private readonly IAccountRepository _repository;
-    private readonly IMapper _mapper;
-
-    public GetAccountsQueryHandler(
-        IAccountRepository repository,
-        IMapper mapper)
-    {
-        _repository = repository;
-        _mapper = mapper;
-    }
-
     public async Task<PaginatedResult<AccountDto>> Handle(
         GetAccountsQuery request, 
         CancellationToken cancellationToken)
     {
-        var accounts = await _repository.GetPaginatedAccountsAsync(
+        var accounts = await repository.GetPaginatedAccountsAsync(
             request.PageSize,
             request.PageNumber,
             request.OwnerId,
@@ -36,7 +27,7 @@ public class GetAccountsQueryHandler : IRequestHandler<GetAccountsQuery, Paginat
             cancellationToken);
 
         return new PaginatedResult<AccountDto>(
-            _mapper.Map<List<AccountDto>>(accounts.Items),
+            mapper.Map<List<AccountDto>>(accounts.Items),
             accounts.TotalCount,
             accounts.PageNumber,
             accounts.PageSize);

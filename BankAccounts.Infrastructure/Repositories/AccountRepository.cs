@@ -8,19 +8,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace BankAccounts.Infrastructure.Repositories;
 
-public class AccountRepository : IAccountRepository
+public class AccountRepository(AppDbContext context, IMapper mapper, ITransactionRepository transactionRepository)
+    : IAccountRepository
 {
-    private readonly AppDbContext _context;
-    private readonly IMapper _mapper;
-    private readonly ITransactionRepository _transactionRepository;
-
-    public AccountRepository(AppDbContext context, IMapper mapper, ITransactionRepository transactionRepository)
-    {
-        _context = context;
-        _mapper = mapper;
-        _transactionRepository = transactionRepository;
-    }
-
     public async Task<PaginatedResult<Account>> GetPaginatedAccountsAsync(
         int pageSize,
         int pageNumber,
@@ -32,7 +22,7 @@ public class AccountRepository : IAccountRepository
         bool? isActive,
         CancellationToken cancellationToken)
     {
-        var query = _context.Accounts.AsQueryable();
+        var query = context.Accounts.AsQueryable();
 
         if (ownerId.HasValue) 
             query = query.Where(a => a.OwnerId == ownerId);
@@ -63,7 +53,7 @@ public class AccountRepository : IAccountRepository
             .ToListAsync(cancellationToken);
 
         return new PaginatedResult<Account>(
-            _mapper.Map<List<Account>>(accounts),
+            mapper.Map<List<Account>>(accounts),
             totalCount, 
             pageNumber, 
             pageSize);
@@ -71,66 +61,45 @@ public class AccountRepository : IAccountRepository
 
     public async Task<Account> GetByIdAsync(Guid id, CancellationToken cancellationToken)
     {
-        var accountEntity = await _context.Accounts
+        var accountEntity = await context.Accounts
             .FirstOrDefaultAsync(a=>a.Id == id, cancellationToken);
         
-        return _mapper.Map<Account>(accountEntity);
+        return mapper.Map<Account>(accountEntity);
     }
 
     public async Task AddAsync(Account account, CancellationToken cancellationToken)
     {
-        var accountEntity = _mapper.Map<AccountEntity>(account);
+        var accountEntity = mapper.Map<AccountEntity>(account);
         
-        await _context.Accounts.AddAsync(accountEntity, cancellationToken);
-        await _context.SaveChangesAsync(cancellationToken);
+        await context.Accounts.AddAsync(accountEntity, cancellationToken);
+        await context.SaveChangesAsync(cancellationToken);
     }
 
     public async Task UpdateBalanceAsync(Guid id, decimal balance, CancellationToken cancellationToken)
     {
-        var account = await _context.Accounts
+        var account = await context.Accounts
             .FirstOrDefaultAsync(a => a.Id == id, cancellationToken);
     
         if (account == null) 
-            throw new Exception();
+            throw new InvalidOperationException("Account not found");
 
         account.Balance = balance;
-        await _context.SaveChangesAsync(cancellationToken);
+        await context.SaveChangesAsync(cancellationToken);
     }
 
     public async Task UpdateAsync(Account account, CancellationToken cancellationToken)
     {
-        var existingEntity = await _context.Accounts
+        var existingEntity = await context.Accounts
             .FirstOrDefaultAsync(a => a.Id == account.Id, cancellationToken);
 
         if (existingEntity == null)
-            throw new Exception();
+            throw new InvalidOperationException("Account not found");
 
-        _mapper.Map(account, existingEntity);
+        mapper.Map(account, existingEntity);
     
-        await _context.SaveChangesAsync(cancellationToken);
+        await context.SaveChangesAsync(cancellationToken);
     }
-
-    public async Task DeleteAsync(Guid id, CancellationToken cancellationToken)
-    {
-        var entity = await _context.Accounts.FirstOrDefaultAsync(a=>a.Id==id, cancellationToken);
-        if (entity != null)
-        {
-            _context.Accounts.Remove(entity);
-            await _context.SaveChangesAsync(cancellationToken);
-        }
-    }
-
-    public async Task<bool> ExistsAsync(Guid id, CancellationToken cancellationToken)
-        => await _context.Accounts.AnyAsync(a => a.Id == id, cancellationToken);
     
-    public async Task<IEnumerable<Account>> GetByOwnerIdAsync(Guid ownerId, CancellationToken cancellationToken)
-    {
-        var entities = await _context.Accounts
-            .Where(a => a.OwnerId == ownerId)
-            .ToListAsync(cancellationToken);
-        return _mapper.Map<IEnumerable<Account>>(entities);
-    }
-
     public async Task ExecuteTransactionAsync(Guid accountId, decimal amount, string description, Guid? counterpartyId = null,
         CancellationToken cancellationToken = default)
     {
@@ -138,7 +107,7 @@ public class AccountRepository : IAccountRepository
         account.Balance += amount;
         await UpdateAsync(account, cancellationToken);
 
-        await _transactionRepository.AddAsync(new Transaction
+        await transactionRepository.AddAsync(new Transaction
         {
             Id = Guid.NewGuid(),
             AccountId = accountId,
@@ -154,11 +123,11 @@ public class AccountRepository : IAccountRepository
 
     public async Task CloseAccountAsync(Guid id, CancellationToken cancellationToken)
     {
-        var account = await _context.Accounts.FirstOrDefaultAsync(a=>a.Id == id, cancellationToken);
+        var account = await context.Accounts.FirstOrDefaultAsync(a=>a.Id == id, cancellationToken);
         if (account is { Balance: 0 })
         {
             account.CloseDate = DateTime.UtcNow;
-            await _context.SaveChangesAsync(cancellationToken);
+            await context.SaveChangesAsync(cancellationToken);
         }
         else throw new InvalidOperationException(
             account == null ? "Account not found" : "Balance must be zero to close account");

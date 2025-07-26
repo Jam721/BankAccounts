@@ -5,20 +5,15 @@ namespace BankAccounts.API.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class ReportsController : ControllerBase
+public class ReportsController(ITransactionRepository repository) : ControllerBase
 {
-    private readonly ITransactionRepository _repository;
-
-    public ReportsController(ITransactionRepository repository) 
-        => _repository = repository;
-
-    [HttpGet("{accountId}")]
+    [HttpGet("{accountId:guid}")]
     public async Task<IActionResult> GetStatement(
         Guid accountId,
-        [FromQuery] DateTime? from,
-        [FromQuery] DateTime? to,
+        [FromQuery] DateTime? fromDate,
+        [FromQuery] DateTime? toDate,
         CancellationToken cancellationToken)
     {
-        return Ok(await _repository.GetByAccountIdAndPeriodAsync(accountId, from, to, cancellationToken));
+        return Ok(await repository.GetByAccountIdAndPeriodAsync(accountId, fromDate, toDate, cancellationToken));
     }
 }

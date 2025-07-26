@@ -1,5 +1,8 @@
-﻿namespace BankAccounts.Domain.Enums;
+﻿using System.Diagnostics.CodeAnalysis;
 
+namespace BankAccounts.Domain.Enums;
+
+[SuppressMessage("ReSharper", "UnusedMember.Global")]
 public enum AccountType
 {
     Checking = 0,

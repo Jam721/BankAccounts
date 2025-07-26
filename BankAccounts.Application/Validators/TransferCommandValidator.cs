@@ -1,49 +1,29 @@
 ﻿using BankAccounts.Application.Commands;
-using BankAccounts.Domain.Enums;
-using BankAccounts.Domain.Interfaces;
+using BankAccounts.Application.Interfaces;
 using FluentValidation;
 
 namespace BankAccounts.Application.Validators;
 
 public class TransferCommandValidator : AbstractValidator<TransferCommand>
 {
-    private readonly IAccountRepository _accountRepository;
-
-    public TransferCommandValidator(IAccountRepository accountRepository)
+    public TransferCommandValidator(ICurrencyService currencyService)
     {
-        _accountRepository = accountRepository;
+        RuleFor(x => x.FromAccountId)
+            .NotEmpty().WithMessage("Source account ID is required")
+            .Must(id => id != Guid.Empty).WithMessage("Invalid source Account ID")
+            .NotEqual(cmd => cmd.ToAccountId).WithMessage("Source and target accounts must be different");
 
-        RuleFor(cmd => cmd)
-            .MustAsync(async (cmd, ct) => 
-                await HaveSufficientFunds(cmd.FromAccountId, cmd.Amount, ct))
-            .WithMessage("Insufficient funds")
-            .WithName("Amount");
-    }
-    
-    private async Task<bool> HaveSufficientFunds(Guid accountId, decimal amount, CancellationToken cancellationToken)
-    {
-        var account = await _accountRepository.GetByIdAsync(accountId, cancellationToken);
-    
-        if (account == null)
-            throw new KeyNotFoundException($"Account with ID {accountId} not found");
+        RuleFor(x => x.ToAccountId)
+            .NotEmpty().WithMessage("Target account ID is required")
+            .Must(id => id != Guid.Empty).WithMessage("Invalid target Account ID");
 
-        switch (account.Type)
-        {
-            case AccountType.Checking:
-            case AccountType.Deposit:
-                return account.Balance >= amount;
-        
-            case AccountType.Credit:
-                
-                var creditLimit = account.InterestRate.HasValue 
-                    ? Math.Abs(account.InterestRate.Value) 
-                    : 0;
-            
-                var availableCredit = creditLimit + account.Balance;
-                return availableCredit >= amount;
-        
-            default:
-                throw new InvalidOperationException($"Unsupported account type: {account.Type}");
-        }
+        RuleFor(x => x.Amount)
+            .GreaterThan(0).WithMessage("Amount must be greater than 0");
+
+        RuleFor(x => x.Currency)
+            .NotEmpty().WithMessage("Currency is required")
+            .Must(currencyService.IsSupportedCurrency)
+            .Length(3).WithMessage("Currency code must be 3 characters")
+            .Matches("^[A-Z]{3}$").WithMessage("Invalid currency format (ISO 4217)");
     }
 }

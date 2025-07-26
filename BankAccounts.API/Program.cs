@@ -1,6 +1,4 @@
 using BankAccounts.API.Extensions;
-using BankAccounts.Application.Commands;
-using BankAccounts.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
 var services = builder.Services;
@@ -13,17 +11,13 @@ services.AddControllers();
 services.AddDbContextExtension(configuration);
 services.AddAutoMapperProfiles();
 services.AddRepositories();
-
-services.AddMediatR(cfg => 
-    cfg.RegisterServicesFromAssembly(typeof(CreateAccountCommand).Assembly));
+services.AddServices();
+services.AddMediatrValidators();
 
 var app = builder.Build();
 
-using (var scope = app.Services.CreateScope())
-{
-    var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-    context.Database.EnsureCreated();
-}
+app.AddDatabaseMigrations();
+app.AddUseExceptionHandler();
 
 app.UseSwagger();
 app.UseSwaggerUI();

@@ -15,7 +15,7 @@ public class AccountsController(IMediator mediator) : ControllerBase
         return Ok(await mediator.Send(query));
     }
     
-    [HttpGet("{id}")]
+    [HttpGet("{id:guid}")]
     public async Task<IActionResult> GetAccount(Guid id)
     {
         return Ok(await mediator.Send(new GetAccountQuery { AccountId = id }));
@@ -27,7 +27,7 @@ public class AccountsController(IMediator mediator) : ControllerBase
         return Ok(await mediator.Send(command));
     }
     
-    [HttpDelete("{id}")]
+    [HttpDelete("{id:guid}")]
     public async Task<IActionResult> CloseAccount(Guid id)
     {
         await mediator.Send(new CloseAccountCommand { AccountId = id });

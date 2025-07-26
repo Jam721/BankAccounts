@@ -1,5 +1,4 @@
-﻿using BankAccounts.Application.Dto;
-using BankAccounts.Application.Mapping;
+﻿using BankAccounts.Application.Mapping;
 using BankAccounts.Infrastructure.Mapping;
 
 namespace BankAccounts.API.Extensions;
